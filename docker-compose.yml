@@ -1,0 +1,24 @@
+# DUID="$(id -u)" DGID="$(id -g)" docker compose
+# DUID="$(id -u)" DGID="$(id -g)" docker compose run --service-ports --rm node
+
+x-volumes: &volumes
+  - ..:/workspaces:cached
+
+x-service-runtime: &service-runtime
+  user: ${DUID}:${DGID}
+  group_add:
+    - sudo
+    - "${DGID}"
+  environment:
+    - DISPLAY
+  volumes: *volumes
+  working_dir: ${PWD}
+
+services:
+  node:
+    <<: [*service-runtime]
+    image: node:20-bullseye-slim
+    container_name: node-test
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    ports:
+      - "3000:3000"
